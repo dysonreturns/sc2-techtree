@@ -23,6 +23,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from dataclasses import dataclass
 from loguru import logger
+from sc2.position import Point2
 
 
 @dataclass()
@@ -66,12 +67,16 @@ EMPTY_COST = {"minerals": 0, "gas": 0, "time": 0}
 TARGET_DIR = Path("generated") / "collect"
 TARGET_DIR.mkdir(exist_ok=True, parents=True)
 
+class EmptyBot(BotAI):
+    async def on_step(self, iteration: int):
+        1 + 1
 
 class MyBot(BotAI):
 
     def __init__(self) -> None:
         super().__init__()
 
+        self.dummy_units = []
         self.data_upgrades = []
         self.data_units = []
         self.data_abilities = []
@@ -469,10 +474,10 @@ class MyBot(BotAI):
             self.current_unit = self.unit_queue.pop()
             current_unit_type_id = UnitTypeId(self.current_unit)
             logger.info(f"Spawning unit type: {current_unit_type_id}")
-            await self.client.debug_create_unit([[current_unit_type_id, 1, self.game_info.map_center, 1]])
+            await self.client.debug_create_unit([[current_unit_type_id, 1, self.game_info.player_start_location, 1]])
             # Create creep for queen to enable transfuse ability
             if current_unit_type_id == UnitTypeId.QUEEN:
-                await self.client.debug_create_unit([[UnitTypeId.CREEPTUMOR, 9, self.game_info.map_center, 1]])
+                await self.client.debug_create_unit([[UnitTypeId.CREEPTUMOR, 9, self.game_info.player_start_location, 1]])
 
             self.time_left = 10
             self.__state = "WaitCreate"
@@ -480,7 +485,7 @@ class MyBot(BotAI):
         elif self.__state == "WaitCreate":
             if len(self.all_own_units) == 0 and self.current_unit == UnitTypeId.LARVA.value:
                 # Larva cannot be created without a hatchery
-                await self.client.debug_create_unit([[UnitTypeId.HATCHERY, 1, self.game_info.map_center, 1]])
+                await self.client.debug_create_unit([[UnitTypeId.HATCHERY, 1, self.game_info.player_start_location, 1]])
                 self.wait_steps = 10
                 return
             elif len(self.all_own_units) == 0:
@@ -538,7 +543,7 @@ class MyBot(BotAI):
                         assert len(self.all_own_units) == 2 and all(u.is_ready for u in self.all_own_units)
                         # Building and addon both created
                     else:
-                        await self.client.debug_create_unit([[ut, 1, self.game_info.map_center, 1]])
+                        await self.client.debug_create_unit([[ut, 1, self.game_info.player_start_location, 1]])
                         await self.client.debug_kill_unit([unit.tag])
                         self.wait_steps = 100
                         self.__state = "BuildAddOn"
@@ -556,7 +561,7 @@ class MyBot(BotAI):
                             # Disable autocast of warpgate morph
                             await self.client.toggle_autocast([unit], AbilityId.MORPH_WARPGATE)
 
-                        await self.client.debug_create_unit([[UnitTypeId.PYLON, 1, self.game_info.map_center, 1]])
+                        await self.client.debug_create_unit([[UnitTypeId.PYLON, 1, self.game_info.player_start_location, 1]])
 
                         self.wait_steps = 200
                         return
@@ -668,6 +673,7 @@ class MyBot(BotAI):
             self.time_left = 10
 
     async def on_step(self, iteration: int) -> None:
+
         # Fix for burnysc2 library
         for unit in self.all_own_units:
             self.client.debug_text_world(
@@ -683,7 +689,18 @@ class MyBot(BotAI):
             await self.client.debug_cooldown()
             await self.client.debug_all_resources()  # Must build addons
             await self.client.debug_god()  # Larva must not die
+
+            # Make a dummy unit which won't interfere with tech tree
+            await self.client.debug_create_unit([[UnitTypeId.SHIELDBATTERY, 1, self.game_info.player_start_location.towards(self.game_info.start_locations[0], distance=7), 1]])
         else:
+            # Prevent dummy unit from going through any other unit filters
+            # This keeps it alive
+            if not self.dummy_units:
+                self.dummy_units = self.all_units.filter(lambda unit: unit.type_id == UnitTypeId.SHIELDBATTERY)
+
+            self.all_units -= self.dummy_units
+            self.all_own_units -= self.dummy_units
+            self.all_enemy_units -= self.dummy_units
             await self.state_step()
 
 
@@ -692,7 +709,7 @@ def collect() -> None:
     To be able to run this, you need to have the "Empty128" map downloaded and in your SC2/maps folder
     You can download the map from here ("Melee" link): https://github.com/Blizzard/s2client-proto#map-packs
     """
-    run_game(maps.get("Empty128"), [Bot(Race.Zerg, MyBot())], realtime=False)
+    run_game(maps.get("UltraloveAIE"), [Bot(Race.Zerg, MyBot()), Bot(Race.Terran, EmptyBot())], realtime=False, sc2_version="5.0.14.93333")
 
 
 if __name__ == "__main__":

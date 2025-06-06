@@ -10135,7 +10135,7 @@
                     "cooldown": 2.2099609375,
                     "damage_per_hit": 6.0,
                     "damage_splash": 0,
-                    "range": 7.0,
+                    "range": 6.5,
                     "target_type": "Any"
                 }
             ]
@@ -17852,7 +17852,14 @@
             "weapons": []
         },
         {
-            "abilities": [],
+            "abilities": [
+                {
+                    "ability": 1733
+                },
+                {
+                    "ability": 1
+                }
+            ],
             "accepts_addon": false,
             "armor": 0.0,
             "attributes": [
@@ -18202,7 +18209,20 @@
             ]
         },
         {
-            "abilities": [],
+            "abilities": [
+                {
+                    "ability": 16
+                },
+                {
+                    "ability": 17
+                },
+                {
+                    "ability": 18
+                },
+                {
+                    "ability": 1
+                }
+            ],
             "accepts_addon": false,
             "armor": 2.0,
             "attributes": [
