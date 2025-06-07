@@ -19,6 +19,11 @@ def patch() -> None:
     with (SOURCE_DIR / "ability.toml").open() as f:
         c_ability = toml.load(f)
 
+    with (Path("generate") / "patches" / "ability_missing.toml").open() as f:
+        ability_missing = toml.load(f)
+        for a in ability_missing["Ability"]:
+            c_ability["Ability"].append(a)
+
     with (SOURCE_DIR / "unit.toml").open() as f:
         c_unit = toml.load(f)
 
@@ -115,7 +120,6 @@ def patch() -> None:
                 if p0:
                     p1 = p0.get(str(ability_id))
                     assert not p1, f"Redundant unit requirement: {patch_name}"
-                    # assert not p1, f"Redundant unit requirement: {patch_name}"
 
     with (T_TOML_DIR / "ability.toml").open("w") as f:
         toml.dump(c_ability, f)

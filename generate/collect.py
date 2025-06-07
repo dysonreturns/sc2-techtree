@@ -709,7 +709,7 @@ def collect() -> None:
     To be able to run this, you need to have the "Empty128" map downloaded and in your SC2/maps folder
     You can download the map from here ("Melee" link): https://github.com/Blizzard/s2client-proto#map-packs
     """
-    run_game(maps.get("UltraloveAIE"), [Bot(Race.Zerg, MyBot()), Bot(Race.Terran, EmptyBot())], realtime=False, sc2_version="5.0.14.93333")
+    run_game(maps.get("UltraloveAIE"), [Bot(Race.Zerg, MyBot()), Bot(Race.Terran, EmptyBot())], realtime=False)
 
 
 if __name__ == "__main__":
