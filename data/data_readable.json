@@ -9696,7 +9696,7 @@
             "cooldown": 10,
             "effect": [],
             "energy_cost": 0,
-            "id": 1,
+            "id": 4901,
             "name": "FRENZY",
             "target": "None"
         }
@@ -18224,20 +18224,7 @@
             ]
         },
         {
-            "abilities": [
-                {
-                    "ability": 16
-                },
-                {
-                    "ability": 17
-                },
-                {
-                    "ability": 18
-                },
-                {
-                    "ability": 1
-                }
-            ],
+            "abilities": [],
             "accepts_addon": false,
             "armor": 2.0,
             "attributes": [

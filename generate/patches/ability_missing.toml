@@ -6,6 +6,6 @@ cast_range = 0
 cooldown = 10
 effect = [ ]
 energy_cost = 0
-id = 1
+id = 4901
 name = "FRENZY"
 target = "None"

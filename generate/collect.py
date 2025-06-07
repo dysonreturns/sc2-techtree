@@ -68,8 +68,12 @@ TARGET_DIR = Path("generated") / "collect"
 TARGET_DIR.mkdir(exist_ok=True, parents=True)
 
 class EmptyBot(BotAI):
+
+    async def on_start(self) -> None:
+        self.client.game_step = 1000
+
     async def on_step(self, iteration: int):
-        1 + 1
+        pass
 
 class MyBot(BotAI):
 
